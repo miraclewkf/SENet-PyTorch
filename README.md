@@ -26,5 +26,5 @@
 * Train from scratch using ImageNet dataset:
 
 ```
-train train.py --batch-size 64
+python train.py --batch-size 64
 ```
