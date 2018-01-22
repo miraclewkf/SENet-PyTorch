@@ -7,14 +7,14 @@
 ├── SENet.py
 ├── read_ImageNetData.py
 ├── ImageData
-		├── ILSVRC2012_img_train
-					├── n01440764
-					├──    ...
-					├── n15075141
-		├── ILSVRC2012_img_val
-		├── ILSVRC2012_dev_kit_t12
-					├── data
-						├── ILSVRC2012_validation_ground_truth.txt
+	├── ILSVRC2012_img_train
+		├── n01440764
+			├──    ...
+			├── n15075141
+	├── ILSVRC2012_img_val
+	├── ILSVRC2012_dev_kit_t12
+		├── data
+			├── ILSVRC2012_validation_ground_truth.txt
 ├── output
 ```
 
