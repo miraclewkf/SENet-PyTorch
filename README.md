@@ -9,8 +9,8 @@
 ├── ImageData
 	├── ILSVRC2012_img_train
 		├── n01440764
-			├──    ...
-			├── n15075141
+		├──    ...
+		├── n15075141
 	├── ILSVRC2012_img_val
 	├── ILSVRC2012_dev_kit_t12
 		├── data
