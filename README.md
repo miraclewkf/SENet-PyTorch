@@ -1,6 +1,8 @@
 **This is the PyTorch implement of SENet(Squeeze-and-Excitation Networks)**[https://arxiv.org/pdf/1709.01507.pdf]
 
-* Project
+### Project
+
+```
 ├── train.py
 ├── SENet.py
 ├── read_ImageNetData.py
@@ -14,13 +16,15 @@
 					├── data
 						├── ILSVRC2012_validation_ground_truth.txt
 ├── output
+```
 
 **You should download ImageNet dataset and put them as in `ImageData` folder as above.**
 
 
-* Usage
+### Usage
 
-**Train from scratch using ImageNet dataset:**
+* Train from scratch using ImageNet dataset:
+
 ```
 train train.py --batch-size 64
 ```
