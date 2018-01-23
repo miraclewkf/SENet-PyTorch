@@ -15,7 +15,6 @@ def train_model(args, model, criterion, optimizer, scheduler, num_epochs, datase
     since = time.time()
 
     best_model_wts = model.state_dict()
-    best_acc = 0.0
 
     for epoch in range(num_epochs):
 
@@ -30,10 +29,9 @@ def train_model(args, model, criterion, optimizer, scheduler, num_epochs, datase
             running_loss = 0.0
             running_corrects = 0
 
-
+            tic_batch = time.time()
             # Iterate over data.
             for i, (inputs, labels) in enumerate(dataloders[phase]):
-                tic_batch = time.time()
                 # wrap them in Variable
                 if use_gpu:
                     inputs = Variable(inputs.cuda())
@@ -64,7 +62,8 @@ def train_model(args, model, criterion, optimizer, scheduler, num_epochs, datase
                 if phase == 'train' and i%args.print_freq == 0:
                     print('[Epoch {}/{}]-[batch:{}/{}]  {} Loss: {:.4f}  Acc: {:.4f}  Time: {:.4f}batch/sec'.format(
                           epoch, num_epochs - 1, i, round(dataset_sizes[phase]/args.batch_size)-1, phase, batch_loss, batch_acc, \
-                        1/(time.time()-tic_batch)))
+                          args.print_freq / (time.time() - tic_batch)))
+                    tic_batch = time.time()
 
             epoch_loss = running_loss / dataset_sizes[phase]
             epoch_acc = running_corrects / dataset_sizes[phase]
@@ -73,6 +72,8 @@ def train_model(args, model, criterion, optimizer, scheduler, num_epochs, datase
                 phase, epoch_loss, epoch_acc))
 
         if (epoch+1) % args.save_epoch_freq == 0:
+            if os.path.exists(args.save_path):
+                os.makedirs(args.save_path)
             torch.save(model, os.path.join(args.save_path, "epoch_" + str(epoch) + ".pth.tar"))
 
     time_elapsed = time.time() - since
