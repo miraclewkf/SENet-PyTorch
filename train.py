@@ -16,12 +16,12 @@ def train_model(args, model, criterion, optimizer, scheduler, num_epochs, datase
 
     best_model_wts = model.state_dict()
 
-    for epoch in range(num_epochs):
+    for epoch in range(args.start_epoch+1,num_epochs):
 
         # Each epoch has a training and validation phase
-        for phase in ['train', 'val']:
+        for phase in ['train','val']:
             if phase == 'train':
-                scheduler.step()
+                scheduler.step(args.start_epoch+1)
                 model.train(True)  # Set model to training mode
             else:
                 model.train(False)  # Set model to evaluate mode
@@ -60,9 +60,9 @@ def train_model(args, model, criterion, optimizer, scheduler, num_epochs, datase
                 batch_acc = running_corrects / ((i+1)*args.batch_size)
 
                 if phase == 'train' and i%args.print_freq == 0:
-                    print('[Epoch {}/{}]-[batch:{}/{}]  {} Loss: {:.4f}  Acc: {:.4f}  Time: {:.4f}batch/sec'.format(
-                          epoch, num_epochs - 1, i, round(dataset_sizes[phase]/args.batch_size)-1, phase, batch_loss, batch_acc, \
-                          args.print_freq / (time.time() - tic_batch)))
+                    print('[Epoch {}/{}]-[batch:{}/{}] lr:{:.4f} {} Loss: {:.4f}  Acc: {:.4f}  Time: {:.4f}batch/sec'.format(
+                          epoch, num_epochs - 1, i, round(dataset_sizes[phase]/args.batch_size)-1, scheduler.get_lr()[0], phase, batch_loss, batch_acc, \
+                        args.print_freq/(time.time()-tic_batch)))
                     tic_batch = time.time()
 
             epoch_loss = running_loss / dataset_sizes[phase]
@@ -91,15 +91,14 @@ if __name__ == '__main__':
     parser.add_argument('--batch-size', type=int, default=16)
     parser.add_argument('--num-class', type=int, default=1000)
     parser.add_argument('--num-epochs', type=int, default=100)
-    parser.add_argument('--lr', type=float, default=0.01)
+    parser.add_argument('--lr', type=float, default=0.045)
     parser.add_argument('--num-workers', type=int, default=0)
     parser.add_argument('--gpus', type=str, default=0)
     parser.add_argument('--print-freq', type=int, default=10)
     parser.add_argument('--save-epoch-freq', type=int, default=1)
     parser.add_argument('--save-path', type=str, default="output")
     parser.add_argument('--resume', type=str, default="", help="For training from one checkpoint")
-    parser.add_argument('--start-epoch', type=int, default=0, help="For training from one checkpoint at start epoch")
-    parser.add_argument('--pretrain', type=str, default="", help="For training from one pretrain model")
+    parser.add_argument('--start-epoch', type=int, default=0, help="Corresponding to the epoch of resume ")
     args = parser.parse_args()
 
     # read data
@@ -107,33 +106,19 @@ if __name__ == '__main__':
 
     # use gpu or not
     use_gpu = torch.cuda.is_available()
+    print("use_gpu:{}".format(use_gpu))
 
     # get model
-    model = senet50()
-
-    if args.pretrain:
-        if os.path.isfile(args.pretrain):
-            print(("=> loading pretrain model '{}'".format(args.pretrain)))
-            checkpoint = torch.load(args.pretrain)
-            base_dict = {".".join(["module", k]): v for k, v in list(checkpoint.items())}
-            model.load_state_dict(base_dict, strict=False)
-        else:
-            print(("=> no pretrain model found at '{}'".format(args.pretrain)))
+    model = senet50(num_classes = args.num_class)
 
     if args.resume:
         if os.path.isfile(args.resume):
             print(("=> loading checkpoint '{}'".format(args.resume)))
             checkpoint = torch.load(args.resume)
-            args.start_epoch = checkpoint['epoch']
-            best_prec1 = checkpoint['best_prec1']
-            model.load_state_dict(checkpoint['state_dict'])
-            print(("=> loaded checkpoint '{}' (epoch {})"
-                   .format(args.evaluate, checkpoint['epoch'])))
+            base_dict = {'.'.join(k.split('.')[1:]): v for k, v in list(checkpoint.state_dict().items())}
+            model.load_state_dict(base_dict)
         else:
             print(("=> no checkpoint found at '{}'".format(args.resume)))
-    # replace the original fc layer with your fc layer
-    num_ftrs = model.fc.in_features
-    model.fc = nn.Linear(num_ftrs, args.num_class)
 
     if use_gpu:
         model = model.cuda()
@@ -143,10 +128,10 @@ if __name__ == '__main__':
     criterion = nn.CrossEntropyLoss()
 
     # Observe that all parameters are being optimized
-    optimizer_ft = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9)
+    optimizer_ft = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=0.00004)
 
     # Decay LR by a factor of 0.1 every 7 epochs
-    exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=50, gamma=0.1)
+    exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=1, gamma=0.98)
 
     model = train_model(args=args,
                            model=model,
