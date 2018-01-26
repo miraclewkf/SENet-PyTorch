@@ -1,4 +1,4 @@
-## This is the PyTorch implement of SENet
+## This is the PyTorch implement of SENet (train on ImageNet dataset)
 
 Paper: [Squeeze-and-Excitation Networks](https://arxiv.org/pdf/1709.01507.pdf)
 
@@ -11,7 +11,7 @@ This code takes ImageNet dataset as example. You can download ImageNet dataset a
 
 ```
 ├── train.py # train script
-├── MobileNetV2.py # network of MobileNetV2
+├── SENet.py # network of SENet
 ├── read_ImageNetData.py # ImageNet dataset read script
 ├── ImageData # train and validation data
 	├── ILSVRC2012_img_train
