@@ -21,7 +21,10 @@ def train_model(args, model, criterion, optimizer, scheduler, num_epochs, datase
         # Each epoch has a training and validation phase
         for phase in ['train','val']:
             if phase == 'train':
-                scheduler.step(args.start_epoch+1)
+                if args.start_epoch > 0:
+                    scheduler.step(args.start_epoch+1)
+                else:
+                    scheduler.step(epoch)
                 model.train(True)  # Set model to training mode
             else:
                 model.train(False)  # Set model to evaluate mode
@@ -60,7 +63,7 @@ def train_model(args, model, criterion, optimizer, scheduler, num_epochs, datase
                 batch_acc = running_corrects / ((i+1)*args.batch_size)
 
                 if phase == 'train' and i%args.print_freq == 0:
-                    print('[Epoch {}/{}]-[batch:{}/{}] lr:{:.4f} {} Loss: {:.4f}  Acc: {:.4f}  Time: {:.4f}batch/sec'.format(
+                    print('[Epoch {}/{}]-[batch:{}/{}] lr:{:.4f} {} Loss: {:.6f}  Acc: {:.4f}  Time: {:.4f}batch/sec'.format(
                           epoch, num_epochs - 1, i, round(dataset_sizes[phase]/args.batch_size)-1, scheduler.get_lr()[0], phase, batch_loss, batch_acc, \
                         args.print_freq/(time.time()-tic_batch)))
                     tic_batch = time.time()
