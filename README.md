@@ -11,7 +11,8 @@ This code takes ImageNet dataset as example. You can download ImageNet dataset a
 
 ```
 ├── train.py # train script
-├── SENet.py # network of SENet
+├── se_resnet.py # network of se_resnet
+├── se_resnext.py # network of se_resnext
 ├── read_ImageNetData.py # ImageNet dataset read script
 ├── ImageData # train and validation data
 	├── ILSVRC2012_img_train
@@ -33,7 +34,7 @@ This code takes ImageNet dataset as example. You can download ImageNet dataset a
 python train.py --network se_resnext_50 --batch-size 256 --gpus 0,1,2,3
 ```
 
-parameter `--network` can be `se_resnet_18`/`se_resnet_34`/`se_resnet_50`/`se_resnet_101`/`se_resnet_152` or `se_resnext_50`/`se_resnext_101`/`se_resnext_152`.
+parameter `--network` can be `se_resnet_18` or `se_resnet_34` or `se_resnet_50` or `se_resnet_101` or `se_resnet_152` or `se_resnext_50` or `se_resnext_101` or `se_resnext_152`.
 
 * If you want to train from one checkpoint, you can run as follows(for example train from `epoch_4.pth.tar`, the `--start-epoch` parameter is corresponding to the epoch of the checkpoint):
 
