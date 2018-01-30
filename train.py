@@ -13,6 +13,7 @@ from read_ImageNetData import ImageNetData
 
 def train_model(args, model, criterion, optimizer, scheduler, num_epochs, dataset_sizes):
     since = time.time()
+    resumed = False
 
     best_model_wts = model.state_dict()
 
@@ -21,8 +22,9 @@ def train_model(args, model, criterion, optimizer, scheduler, num_epochs, datase
         # Each epoch has a training and validation phase
         for phase in ['train','val']:
             if phase == 'train':
-                if args.start_epoch > 0:
+                if args.start_epoch > 0 and (not resumed):
                     scheduler.step(args.start_epoch+1)
+                    resumed = True
                 else:
                     scheduler.step(epoch)
                 model.train(True)  # Set model to training mode
