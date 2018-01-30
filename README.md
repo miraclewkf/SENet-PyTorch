@@ -30,11 +30,13 @@ This code takes ImageNet dataset as example. You can download ImageNet dataset a
 * If you want to train from scratch, you can run as follows:
 
 ```
-python train.py --batch-size 256 --gpus 0,1,2,3
+python train.py --network se_resnext_50 --batch-size 256 --gpus 0,1,2,3
 ```
+
+parameter `--network` can be `se_resnet_18`/`se_resnet_34`/`se_resnet_50`/`se_resnet_101`/`se_resnet_152` or `se_resnext_50`/`se_resnext_101`/`se_resnext_152`.
 
 * If you want to train from one checkpoint, you can run as follows(for example train from `epoch_4.pth.tar`, the `--start-epoch` parameter is corresponding to the epoch of the checkpoint):
 
 ```
-python train.py --batch-size 256 --gpus 0,1,2,3 --resume output/epoch_4.pth.tar --start-epoch 4
+python train.py --network se_resnext_50 --batch-size 256 --gpus 0,1,2,3 --resume output/epoch_4.pth.tar --start-epoch 4
 ```

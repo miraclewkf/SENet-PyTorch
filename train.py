@@ -7,9 +7,10 @@ from torch.optim import lr_scheduler
 from torch.autograd import Variable
 import time
 import os
-from SENet import *
 import argparse
 from read_ImageNetData import ImageNetData
+import se_resnet
+import se_resnext
 
 def train_model(args, model, criterion, optimizer, scheduler, num_epochs, dataset_sizes):
     since = time.time()
@@ -104,6 +105,7 @@ if __name__ == '__main__':
     parser.add_argument('--save-path', type=str, default="output")
     parser.add_argument('--resume', type=str, default="", help="For training from one checkpoint")
     parser.add_argument('--start-epoch', type=int, default=0, help="Corresponding to the epoch of resume ")
+    parser.add_argument('--network', type=str, default="se_resnet_50", help="")
     args = parser.parse_args()
 
     # read data
@@ -114,7 +116,14 @@ if __name__ == '__main__':
     print("use_gpu:{}".format(use_gpu))
 
     # get model
-    model = senet50(num_classes = args.num_class)
+    script_name = '_'.join([args.network.strip().split('_')[0], args.network.strip().split('_')[1]])
+
+    if script_name == "se_resnet":
+        model = getattr(se_resnet ,args.network)(num_classes = args.num_class)
+    elif script_name == "se_resnext":
+        model = getattr(se_resnext, args.network)(num_classes=args.num_class)
+    else:
+        raise Exception("Please give correct network name such as se_resnet_xx or se_rexnext_xx")
 
     if args.resume:
         if os.path.isfile(args.resume):

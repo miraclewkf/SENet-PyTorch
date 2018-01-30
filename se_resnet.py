@@ -3,8 +3,8 @@ import math
 import torch.utils.model_zoo as model_zoo
 
 
-__all__ = ['SENet', 'senet18', 'senet34', 'senet50', 'senet101',
-           'senet152']
+__all__ = ['SENet', 'se_resnet_18', 'se_resnet_34', 'se_resnet_50', 'se_resnet_101',
+           'se_resnet_152']
 
 def conv3x3(in_planes, out_planes, stride=1):
     """3x3 convolution with padding"""
@@ -24,6 +24,18 @@ class BasicBlock(nn.Module):
         self.downsample = downsample
         self.stride = stride
 
+        if planes == 64:
+            self.globalAvgPool = nn.AvgPool2d(56, stride=1)
+        elif planes == 128:
+            self.globalAvgPool = nn.AvgPool2d(28, stride=1)
+        elif planes == 256:
+            self.globalAvgPool = nn.AvgPool2d(14, stride=1)
+        elif planes == 512:
+            self.globalAvgPool = nn.AvgPool2d(7, stride=1)
+        self.fc1 = nn.Linear(in_features=planes, out_features=round(planes / 16))
+        self.fc2 = nn.Linear(in_features=round(planes / 16), out_features=planes)
+        self.sigmoid = nn.Sigmoid()
+
     def forward(self, x):
         residual = x
 
@@ -36,6 +48,16 @@ class BasicBlock(nn.Module):
 
         if self.downsample is not None:
             residual = self.downsample(x)
+
+        original_out = out
+        out = self.globalAvgPool(out)
+        out = out.view(out.size(0), -1)
+        out = self.fc1(out)
+        out = self.relu(out)
+        out = self.fc2(out)
+        out = self.sigmoid(out)
+        out = out.view(out.size(0), out.size(1), 1, 1)
+        out = out * original_out
 
         out += residual
         out = self.relu(out)
@@ -163,7 +185,7 @@ class SENet(nn.Module):
         return x
 
 
-def senet18(pretrained=False, **kwargs):
+def se_resnet_18(pretrained=False, **kwargs):
     """Constructs a ResNet-18 model.
 
     Args:
@@ -173,7 +195,7 @@ def senet18(pretrained=False, **kwargs):
     return model
 
 
-def senet34(pretrained=False, **kwargs):
+def se_resnet_34(pretrained=False, **kwargs):
     """Constructs a ResNet-34 model.
 
     Args:
@@ -183,7 +205,7 @@ def senet34(pretrained=False, **kwargs):
     return model
 
 
-def senet50(pretrained=False, **kwargs):
+def se_resnet_50(pretrained=False, **kwargs):
     """Constructs a ResNet-50 model.
 
     Args:
@@ -193,7 +215,7 @@ def senet50(pretrained=False, **kwargs):
     return model
 
 
-def senet101(pretrained=False, **kwargs):
+def se_resnet_101(pretrained=False, **kwargs):
     """Constructs a ResNet-101 model.
 
     Args:
@@ -203,7 +225,7 @@ def senet101(pretrained=False, **kwargs):
     return model
 
 
-def senet152(pretrained=False, **kwargs):
+def se_resnet_152(pretrained=False, **kwargs):
     """Constructs a ResNet-152 model.
 
     Args:
